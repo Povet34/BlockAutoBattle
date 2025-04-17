@@ -56,17 +56,19 @@ public class GridLinesDrawer : MonoBehaviour
         GL.Begin(GL.LINES);
         GL.Color(lineColor);
 
+        float gridOffsetY = -0.5f; // 그리드를 0.5만큼 아래로 이동
+
         // Draw grid lines
         for (int x = 0; x <= width; x++)
         {
-            GL.Vertex3(x * cellSize, 0, 0);
-            GL.Vertex3(x * cellSize, 0, height * cellSize);
+            GL.Vertex3(x * cellSize, gridOffsetY, 0);
+            GL.Vertex3(x * cellSize, gridOffsetY, height * cellSize);
         }
 
         for (int z = 0; z <= height; z++)
         {
-            GL.Vertex3(0, 0, z * cellSize);
-            GL.Vertex3(width * cellSize, 0, z * cellSize);
+            GL.Vertex3(0, gridOffsetY, z * cellSize);
+            GL.Vertex3(width * cellSize, gridOffsetY, z * cellSize);
         }
 
         GL.End();
