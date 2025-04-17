@@ -12,6 +12,7 @@ public class GridLinesDrawer : MonoBehaviour
 
     // 2차원 배열: 각 위치의 층 높이를 저장
     public int[,] gridHeights;
+    public float gridOffsetY = -.5f;
 
     void Awake()
     {
@@ -55,9 +56,7 @@ public class GridLinesDrawer : MonoBehaviour
         GL.MultMatrix(transform.localToWorldMatrix);
         GL.Begin(GL.LINES);
         GL.Color(lineColor);
-
-        float gridOffsetY = -0.5f; // 그리드를 0.5만큼 아래로 이동
-
+        
         // Draw grid lines
         for (int x = 0; x <= width; x++)
         {

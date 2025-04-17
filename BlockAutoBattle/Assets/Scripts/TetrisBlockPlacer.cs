@@ -28,14 +28,14 @@ public class TetrisBlockPlacer : MonoBehaviour
     {
         if (ghostBlock != null)
         {
-            UpdateGhostBlockPosition();
+            // 고스트 블록 위치 업데이트
+            UpdateGhostBlock();
 
+            // 마우스 클릭 시 블록 배치
             if (Input.GetMouseButtonDown(0))
             {
-                if (PlaceBlock())
-                {
-                    SelectRandomBlock(); // 블록 배치 후 새로운 블록 선택
-                }
+                PlaceBlock();
+                SelectRandomBlock(); // 블록 배치 후 새로운 블록 선택
             }
         }
     }
@@ -107,25 +107,178 @@ public class TetrisBlockPlacer : MonoBehaviour
         ghostBlock.transform.position = Vector3.zero;
     }
 
-    void UpdateGhostBlockPosition()
+    bool IsBlockOverlapping(Vector3 position)
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit))
+        foreach (Vector3 offset in currentBlock.cubePositions)
         {
-            // Ray가 부딪힌 위치를 기준으로 고스트 블록 배치
-            Vector3 hitPosition = hit.point;
+            // 현재 블록의 각 큐브의 실제 위치 계산
+            Vector3 cubePosition = position + offset;
 
-            // 그리드 스냅 적용
-            int gridX = Mathf.RoundToInt(hitPosition.x / gridSize);
-            int gridY = Mathf.RoundToInt(hitPosition.y / gridSize);
-            int gridZ = Mathf.RoundToInt(hitPosition.z / gridSize);
-
-            Vector3 snappedPosition = new Vector3(
-                gridX * gridSize,
-                gridY * gridSize,
-                gridZ * gridSize
+            // 해당 위치에 정확히 동일한 위치에 있는 배치된 블록이 있는지 확인
+            Collider[] colliders = Physics.OverlapBox(
+                cubePosition,
+                Vector3.one * (gridSize / 2), // 그리드 크기 기준으로 박스 크기 설정
+                Quaternion.identity
             );
 
+            foreach (Collider collider in colliders)
+            {
+                // 고스트 블록은 제외하고, 정확히 동일한 위치에 있는지 확인
+                if (collider.gameObject != ghostBlock && collider.transform.position == cubePosition)
+                {
+                    return true; // 완전히 겹친 경우
+                }
+            }
+        }
+
+        return false; // 완전히 겹치는 블록이 없는 경우
+    }
+
+    void UpdateBlockPosition(bool isPlacing = false)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Vector3 snappedPosition = Vector3.zero;
+        bool isValidPosition = false;
+
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            // Ray가 부딪힌 위치를 기준으로 블록 배치
+            Vector3 hitPosition = hit.point;
+
+            // 중심점을 기준으로 그리드 스냅 적용
+            Vector3 center = currentBlock.GetCenter();
+            int gridX = Mathf.RoundToInt((hitPosition.x - center.x) / gridSize);
+            int gridY = Mathf.RoundToInt((hitPosition.y - center.y) / gridSize);
+            int gridZ = Mathf.RoundToInt((hitPosition.z - center.z) / gridSize);
+
+            snappedPosition = new Vector3(
+                gridX * gridSize + center.x,
+                gridY * gridSize + center.y,
+                gridZ * gridSize + center.z
+            );
+
+            isValidPosition = true;
+        }
+        else
+        {
+            // Ray가 아무것도 부딪히지 않은 경우, 기본 평면 위에 고스트 블록 배치
+            Plane groundPlane = new Plane(Vector3.up, Vector3.zero); // Y=0 평면
+            if (groundPlane.Raycast(ray, out float distance))
+            {
+                Vector3 pointOnPlane = ray.GetPoint(distance);
+
+                // 그리드 스냅 적용
+                Vector3 center = currentBlock.GetCenter();
+                int gridX = Mathf.RoundToInt((pointOnPlane.x - center.x) / gridSize);
+                int gridZ = Mathf.RoundToInt((pointOnPlane.z - center.z) / gridSize);
+
+                snappedPosition = new Vector3(
+                    gridX * gridSize + center.x,
+                    0, // 기본 평면의 Y 좌표
+                    gridZ * gridSize + center.z
+                );
+
+                isValidPosition = true;
+            }
+        }
+
+        if (isValidPosition)
+        {
+            // 고스트 블록 위치 업데이트
+            ghostBlock.transform.position = snappedPosition;
+
+            // 겹침 여부 확인
+            bool isOverlapping = IsBlockOverlapping(snappedPosition);
+
+            // 고스트 블록 색상 변경
+            foreach (Renderer renderer in ghostRenderers)
+            {
+                renderer.material.color = isOverlapping
+                    ? new Color(1, 0, 0, 0.5f) // 빨간색 (반투명)
+                    : new Color(currentBlock.blockColor.r, currentBlock.blockColor.g, currentBlock.blockColor.b, 0.5f); // 원래 색상 (반투명)
+            }
+
+            // 블록 배치 처리
+            if (isPlacing && !isOverlapping)
+            {
+                // 실제 블록 배치
+                foreach (Vector3 offset in currentBlock.cubePositions)
+                {
+                    // 중심점을 기준으로 큐브의 실제 위치 계산
+                    Vector3 cubePosition = snappedPosition + offset - currentBlock.GetCenter();
+                    GameObject placedCube = Instantiate(cubePrefab, cubePosition, Quaternion.identity);
+
+                    // 배치된 큐브의 모든 콜라이더 활성화
+                    Collider[] colliders = placedCube.GetComponents<Collider>();
+                    foreach (Collider collider in colliders)
+                    {
+                        collider.enabled = true;
+                    }
+                }
+            }
+        }
+    }
+
+    private Vector3 CalculateSnappedPosition(Vector3 hitPosition)
+    {
+        // 중심점을 기준으로 그리드 스냅 적용
+        Vector3 center = currentBlock.GetCenter();
+        int gridX = Mathf.RoundToInt((hitPosition.x - center.x) / gridSize);
+        int gridY = Mathf.RoundToInt((hitPosition.y - center.y) / gridSize);
+        int gridZ = Mathf.RoundToInt((hitPosition.z - center.z) / gridSize);
+
+        return new Vector3(
+            gridX * gridSize + center.x,
+            gridY * gridSize + center.y,
+            gridZ * gridSize + center.z
+        );
+    }
+
+    private void PlaceBlockAtPosition(Vector3 position)
+    {
+        // 실제 블록 배치
+        foreach (Vector3 offset in currentBlock.cubePositions)
+        {
+            // 중심점을 기준으로 큐브의 실제 위치 계산
+            Vector3 cubePosition = position + offset;
+            GameObject placedCube = Instantiate(cubePrefab, cubePosition, Quaternion.identity);
+
+            // 배치된 큐브의 모든 콜라이더 활성화
+            Collider[] colliders = placedCube.GetComponents<Collider>();
+            foreach (Collider collider in colliders)
+            {
+                collider.enabled = true;
+            }
+        }
+    }
+
+    private void UpdateGhostBlock()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Vector3 snappedPosition = Vector3.zero;
+        bool isValidPosition = false;
+
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            // Ray가 부딪힌 위치를 기준으로 스냅된 위치 계산
+            snappedPosition = CalculateSnappedPosition(hit.point);
+            isValidPosition = true;
+        }
+        else
+        {
+            // Ray가 아무것도 부딪히지 않은 경우, 기본 평면 위에 고스트 블록 배치
+            Plane groundPlane = new Plane(Vector3.up, Vector3.zero); // Y=0 평면
+            if (groundPlane.Raycast(ray, out float distance))
+            {
+                Vector3 pointOnPlane = ray.GetPoint(distance);
+                snappedPosition = CalculateSnappedPosition(pointOnPlane);
+                isValidPosition = true;
+            }
+        }
+
+        if (isValidPosition)
+        {
+            // 고스트 블록 위치 업데이트
             ghostBlock.transform.position = snappedPosition;
 
             // 겹침 여부 확인
@@ -139,60 +292,8 @@ public class TetrisBlockPlacer : MonoBehaviour
                     : new Color(currentBlock.blockColor.r, currentBlock.blockColor.g, currentBlock.blockColor.b, 0.5f); // 원래 색상 (반투명)
             }
         }
-        else
-        {
-            // Ray가 아무것도 부딪히지 않은 경우, 기본 평면 위에 고스트 블록 배치
-            Plane groundPlane = new Plane(Vector3.up, Vector3.zero); // Y=0 평면
-            if (groundPlane.Raycast(ray, out float distance))
-            {
-                Vector3 pointOnPlane = ray.GetPoint(distance);
-
-                // 그리드 스냅 적용
-                int gridX = Mathf.RoundToInt(pointOnPlane.x / gridSize);
-                int gridZ = Mathf.RoundToInt(pointOnPlane.z / gridSize);
-
-                Vector3 snappedPosition = new Vector3(
-                    gridX * gridSize,
-                    0, // 기본 평면의 Y 좌표
-                    gridZ * gridSize
-                );
-
-                ghostBlock.transform.position = snappedPosition;
-
-                // 고스트 블록 색상은 기본적으로 초록색 (반투명)
-                foreach (Renderer renderer in ghostRenderers)
-                {
-                    renderer.material.color = new Color(currentBlock.blockColor.r, currentBlock.blockColor.g, currentBlock.blockColor.b, 0.5f);
-                }
-            }
-        }
     }
-
-    bool IsBlockOverlapping(Vector3 position)
-    {
-        foreach (Vector3 offset in currentBlock.cubePositions)
-        {
-            Vector3 cubePosition = position + offset;
-            Collider[] colliders = Physics.OverlapBox(
-                cubePosition,
-                Vector3.one * (gridSize / 2),
-                Quaternion.identity
-            );
-
-            foreach (Collider collider in colliders)
-            {
-                // 겹침 확인
-                if (collider.gameObject != ghostBlock)
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    bool PlaceBlock()
+    private bool PlaceBlock()
     {
         Vector3 position = ghostBlock.transform.position;
 
@@ -203,19 +304,7 @@ public class TetrisBlockPlacer : MonoBehaviour
         }
 
         // 블록 배치
-        foreach (Vector3 offset in currentBlock.cubePositions)
-        {
-            Vector3 cubePosition = position + offset;
-            GameObject placedCube = Instantiate(cubePrefab, cubePosition, Quaternion.identity);
-
-            // 배치된 큐브의 모든 콜라이더 활성화
-            Collider[] colliders = placedCube.GetComponents<Collider>();
-            foreach (Collider collider in colliders)
-            {
-                collider.enabled = true;
-            }
-        }
-
+        PlaceBlockAtPosition(position);
         return true;
     }
 }
