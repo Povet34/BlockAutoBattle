@@ -1,5 +1,4 @@
 using UnityEngine;
-using Unity.Cinemachine;
 
 [ExecuteInEditMode]
 public class IsometricCamera : MonoBehaviour
@@ -10,45 +9,38 @@ public class IsometricCamera : MonoBehaviour
     public float cameraDistance = 10f; // 카메라 거리
     public float cameraAngle = 30f; // 카메라 각도
 
-    private CinemachineCamera cinemachineCamera;
-    private CinemachineOrbitalFollow orbitalFollow;
+    [Header("Orbit Settings")]
+    public float orbitSpeed = 50f; // 궤도 회전 속도
+    public float minZoom = 5f; // 최소 줌 거리
+    public float maxZoom = 20f; // 최대 줌 거리
+    public float zoomSpeed = 2f; // 줌 속도
 
-    void Start()
+    private float currentZoom;
+
+    private void Start()
     {
-        // Cinemachine Camera가 없으면 추가
-        cinemachineCamera = GetComponent<CinemachineCamera>();
-        if (cinemachineCamera == null)
-        {
-            cinemachineCamera = gameObject.AddComponent<CinemachineCamera>();
-        }
-
-        // CinemachineOrbitalFollow 설정
-        orbitalFollow = cinemachineCamera.GetComponent<CinemachineOrbitalFollow>();
-        if (orbitalFollow == null)
-        {
-            orbitalFollow = gameObject.AddComponent<CinemachineOrbitalFollow>();
-        }
-
-        // 타겟 설정
-        if (target != null)
-        {
-            cinemachineCamera.Follow = target;
-        }
-
-        // 카메라 높이, 거리, 각도 설정
-        orbitalFollow.OrbitStyle = CinemachineOrbitalFollow.OrbitStyles.Sphere;
-        orbitalFollow.Radius = cameraDistance;
-        orbitalFollow.VerticalAxis.Value = cameraAngle; // 카메라 각도
+        currentZoom = cameraDistance;
     }
 
-    void Update()
+    private void Update()
     {
-        // 카메라 설정 업데이트
-        if (orbitalFollow != null)
-        {
-            orbitalFollow.Radius = cameraDistance;
-            orbitalFollow.VerticalAxis.Value = cameraAngle;
-            orbitalFollow.TargetOffset = new Vector3(0, cameraHeight, 0);
-        }
+        if (target == null) return;
+
+        // 궤도 회전
+        float horizontalInput = Input.GetAxis("Horizontal");
+        transform.RotateAround(target.position, Vector3.up, horizontalInput * orbitSpeed * Time.deltaTime);
+
+        // 줌 기능
+        float scrollInput = Input.GetAxis("Mouse ScrollWheel");
+        currentZoom -= scrollInput * zoomSpeed;
+        currentZoom = Mathf.Clamp(currentZoom, minZoom, maxZoom);
+
+        // 카메라 위치 계산
+        Vector3 direction = Quaternion.Euler(cameraAngle, transform.eulerAngles.y, 0) * Vector3.back;
+        Vector3 targetPosition = target.position + direction * currentZoom;
+        targetPosition.y = Mathf.Max(targetPosition.y, target.position.y + cameraHeight); // Y축 제한
+
+        transform.position = targetPosition;
+        transform.LookAt(target);
     }
 }

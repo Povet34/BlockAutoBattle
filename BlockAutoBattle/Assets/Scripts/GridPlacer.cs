@@ -42,6 +42,37 @@ public class GridPlacer : MonoBehaviour
         isPlacing = true;
     }
 
+    private bool IsOverlapping(Vector3 position)
+    {
+        // 겹침 여부 확인
+        Collider[] colliders = Physics.OverlapBox(
+            position,
+            ghostInstance.transform.localScale / 2,
+            Quaternion.identity
+        );
+
+        foreach (Collider collider in colliders)
+        {
+            // 배치된 큐브의 위치를 그리드 단위로 변환
+            Vector3 colliderPosition = collider.transform.position;
+            int colliderGridX = Mathf.FloorToInt(colliderPosition.x / gridSize);
+            int colliderGridY = Mathf.FloorToInt(colliderPosition.y / gridSize);
+            int colliderGridZ = Mathf.FloorToInt(colliderPosition.z / gridSize);
+
+            // 동일한 그리드 위치에 있는지 확인
+            int gridX = Mathf.FloorToInt(position.x / gridSize);
+            int gridY = Mathf.FloorToInt(position.y / gridSize);
+            int gridZ = Mathf.FloorToInt(position.z / gridSize);
+
+            if (gridX == colliderGridX && gridY == colliderGridY && gridZ == colliderGridZ)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     void UpdateGhostPosition()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -63,8 +94,15 @@ public class GridPlacer : MonoBehaviour
 
             ghostInstance.transform.position = snapped;
 
-            // 고스트 큐브 색상은 항상 초록색으로 유지  
-            ghostRenderer.material.color = new Color(0, 1, 0, 0.5f); // 초록색 (반투명)  
+            // 겹침 여부 확인 및 색상 변경
+            if (IsOverlapping(ghostInstance.transform.position))
+            {
+                ghostRenderer.material.color = new Color(1, 0, 0, 0.5f); // 빨간색 (반투명)
+            }
+            else
+            {
+                ghostRenderer.material.color = new Color(0, 1, 0, 0.5f); // 초록색 (반투명)
+            }
         }
         else
         {
@@ -85,7 +123,16 @@ public class GridPlacer : MonoBehaviour
                 );
 
                 ghostInstance.transform.position = snapped;
-                ghostRenderer.material.color = new Color(0, 1, 0, 0.5f); // 초록색 (반투명)  
+
+                // 겹침 여부 확인 및 색상 변경
+                if (IsOverlapping(ghostInstance.transform.position))
+                {
+                    ghostRenderer.material.color = new Color(1, 0, 0, 0.5f); // 빨간색 (반투명)
+                }
+                else
+                {
+                    ghostRenderer.material.color = new Color(0, 1, 0, 0.5f); // 초록색 (반투명)
+                }
             }
         }
     }
@@ -96,13 +143,25 @@ public class GridPlacer : MonoBehaviour
 
         // 그리드 스냅 적용
         int gridX = Mathf.FloorToInt(position.x / gridSize);
+        int gridY = Mathf.FloorToInt(position.y / gridSize);
         int gridZ = Mathf.FloorToInt(position.z / gridSize);
 
         // 그리드 범위 내인지 확인
         if (gridX >= 0 && gridX < gridDrawer.width && gridZ >= 0 && gridZ < gridDrawer.height)
         {
+            if (IsOverlapping(position))
+            {
+                // 겹치는 경우 배치하지 않음
+                Debug.Log("Cannot place cube: position is already occupied.");
+                return;
+            }
+
             // 큐브 배치
             Instantiate(cellPrefab, position, Quaternion.identity);
+        }
+        else
+        {
+            Debug.Log("Cannot place cube: position is out of grid bounds.");
         }
     }
 }
