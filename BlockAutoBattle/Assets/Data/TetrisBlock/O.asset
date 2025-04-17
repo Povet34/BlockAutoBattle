@@ -19,5 +19,5 @@ MonoBehaviour:
   - {x: 1, y: 0, z: 0}
   - {x: 0, y: 1, z: 0}
   - {x: 1, y: 1, z: 0}
-  centerIndex: 1
-  center: {x: 0, y: 0, z: 0}
+  centerIndex: 3
+  center: {x: 1, y: 1, z: 0}
