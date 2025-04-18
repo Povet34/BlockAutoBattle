@@ -92,16 +92,6 @@ public class TetrisBlockPlacer : MonoBehaviour
             {
                 renderer.material = ghostCubeMaterial; // ghostCubeMaterial 적용
             }
-            else
-            {
-                // 기본 색상 설정 (반투명)
-                renderer.material.color = new Color(
-                    currentBlock.blockColor.r,
-                    currentBlock.blockColor.g,
-                    currentBlock.blockColor.b,
-                    0.5f // 반투명
-                );
-            }
             ghostRenderers[i] = renderer;
 
             // 고스트 블록의 모든 콜라이더 비활성화
@@ -116,7 +106,79 @@ public class TetrisBlockPlacer : MonoBehaviour
         ghostBlock.transform.position = Vector3.zero;
     }
 
-    bool IsBlockOverlapping(Vector3 position)
+    private Vector3 CalculateGridPosition(Vector3 position)
+    {
+        // Grid 좌표 계산
+        int gridX = Mathf.RoundToInt(position.x / gridSize);
+        int gridY = Mathf.RoundToInt(position.y / gridSize);
+        int gridZ = Mathf.RoundToInt(position.z / gridSize);
+
+        return new Vector3(
+            gridX * gridSize,
+            gridY * gridSize,
+            gridZ * gridSize
+        );
+    }
+
+    private void UpdateGhostBlock()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        debugRay = ray; // 디버깅용 레이 저장
+        hitPoint = null; // 초기화
+
+        Vector3 snappedPosition = Vector3.zero;
+        bool isValidPosition = false;
+
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            // 부딪힌 오브젝트의 중심 좌표를 기준으로 그리드 좌표 계산
+            Vector3 hitObjectCenter = hit.collider.transform.position;
+            Vector3 gridPosition = CalculateGridPosition(hitObjectCenter);
+
+            // Normal 방향으로 이동
+            Vector3 offsetPosition = gridPosition + hit.normal * gridSize;
+
+            // 그리드 스냅 적용
+            snappedPosition = CalculateGridPosition(offsetPosition);
+            isValidPosition = true;
+
+            // 충돌 지점 저장
+            hitPoint = hit.point;
+        }
+        else
+        {
+            // Ray가 아무것도 부딪히지 않은 경우, Grid 평면 위에 고스트 블록 배치
+            Plane groundPlane = new Plane(Vector3.up, Vector3.zero); // Y=0 평면
+            if (groundPlane.Raycast(ray, out float distance))
+            {
+                Vector3 pointOnPlane = ray.GetPoint(distance);
+                snappedPosition = CalculateGridPosition(pointOnPlane);
+                isValidPosition = true;
+
+                // 충돌 지점 저장
+                hitPoint = pointOnPlane;
+            }
+        }
+
+        if (isValidPosition)
+        {
+            // 고스트 블록 위치 업데이트
+            ghostBlock.transform.position = snappedPosition;
+
+            // 겹침 여부 확인
+            bool isOverlapping = IsBlockOverlapping(snappedPosition);
+
+            // 고스트 블록 색상 변경
+            foreach (Renderer renderer in ghostRenderers)
+            {
+                renderer.material.color = isOverlapping
+                    ? new Color(1, 0, 0, 0.5f) // 빨간색 (반투명)
+                    : new Color(0, 1, 0, 0.5f); // 초록색 (반투명)
+            }
+        }
+    }
+
+    private bool IsBlockOverlapping(Vector3 position)
     {
         foreach (Vector3 offset in currentBlock.cubePositions)
         {
@@ -143,19 +205,19 @@ public class TetrisBlockPlacer : MonoBehaviour
         return false; // 완전히 겹치는 블록이 없는 경우
     }
 
-    private Vector3 CalculateSnappedPosition(Vector3 hitPosition)
+    private bool PlaceBlock()
     {
-        // 중심점을 기준으로 그리드 스냅 적용
-        Vector3 center = currentBlock.GetCenter();
-        int gridX = Mathf.RoundToInt((hitPosition.x - center.x) / gridSize);
-        int gridY = Mathf.RoundToInt((hitPosition.y - center.y) / gridSize);
-        int gridZ = Mathf.RoundToInt((hitPosition.z - center.z) / gridSize);
+        Vector3 position = ghostBlock.transform.position;
 
-        return new Vector3(
-            gridX * gridSize + center.x,
-            gridY * gridSize + center.y,
-            gridZ * gridSize + center.z
-        );
+        if (IsBlockOverlapping(position))
+        {
+            Debug.Log("Cannot place block: position is already occupied.");
+            return false;
+        }
+
+        // 블록 배치
+        PlaceBlockAtPosition(position);
+        return true;
     }
 
     private void PlaceBlockAtPosition(Vector3 position)
@@ -181,72 +243,6 @@ public class TetrisBlockPlacer : MonoBehaviour
                 collider.enabled = true;
             }
         }
-    }
-
-    private void UpdateGhostBlock()
-    {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        debugRay = ray; // 디버깅용 레이 저장
-        hitPoint = null; // 초기화
-
-        Vector3 snappedPosition = Vector3.zero;
-        bool isValidPosition = false;
-
-        if (Physics.Raycast(ray, out RaycastHit hit))
-        {
-            // Ray가 부딪힌 위치를 기준으로 스냅된 위치 계산
-            snappedPosition = CalculateSnappedPosition(hit.point);
-            isValidPosition = true;
-
-            // 충돌 지점 저장
-            hitPoint = hit.point;
-        }
-        else
-        {
-            // Ray가 아무것도 부딪히지 않은 경우, 기본 평면 위에 고스트 블록 배치
-            Plane groundPlane = new Plane(Vector3.up, Vector3.zero); // Y=0 평면
-            if (groundPlane.Raycast(ray, out float distance))
-            {
-                Vector3 pointOnPlane = ray.GetPoint(distance);
-                snappedPosition = CalculateSnappedPosition(pointOnPlane);
-                isValidPosition = true;
-
-                // 충돌 지점 저장
-                hitPoint = pointOnPlane;
-            }
-        }
-
-        if (isValidPosition)
-        {
-            // 고스트 블록 위치 업데이트
-            ghostBlock.transform.position = snappedPosition;
-
-            // 겹침 여부 확인
-            bool isOverlapping = IsBlockOverlapping(snappedPosition);
-
-            // 고스트 블록 색상 변경
-            foreach (Renderer renderer in ghostRenderers)
-            {
-                renderer.material.color = isOverlapping
-                    ? new Color(1, 0, 0, 0.5f) // 빨간색 (반투명)
-                    : new Color(currentBlock.blockColor.r, currentBlock.blockColor.g, currentBlock.blockColor.b, 0.5f); // 원래 색상 (반투명)
-            }
-        }
-    }
-
-    private bool PlaceBlock()
-    {
-        Vector3 position = ghostBlock.transform.position;
-
-        if (IsBlockOverlapping(position))
-        {
-            Debug.Log("Cannot place block: position is already occupied.");
-            return false;
-        }
-
-        // 블록 배치
-        PlaceBlockAtPosition(position);
-        return true;
     }
 
     private void OnDrawGizmos()
