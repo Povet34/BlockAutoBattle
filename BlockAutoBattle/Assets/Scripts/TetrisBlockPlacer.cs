@@ -36,10 +36,10 @@ public class TetrisBlockPlacer : MonoBehaviour
             // 회전 입력 처리
             HandleRotationInput();
 
-            // 마우스 클릭 시 블록 배치
-            if (Input.GetMouseButtonDown(0))
+            // 블록 배치 입력 처리
+            if (TetrisInputManager.Instance.PlaceBlock)
             {
-                if(PlaceBlock())
+                if (PlaceBlock())
                 {
                     SelectRandomBlock(); // 블록 배치 후 새로운 블록 선택
                 }
@@ -49,32 +49,32 @@ public class TetrisBlockPlacer : MonoBehaviour
 
     private void HandleRotationInput()
     {
-        // X축 회전 (A, D)
-        if (Input.GetKeyDown(KeyCode.A))
+        // X축 회전
+        if (TetrisInputManager.Instance.RotateXPositive)
         {
             currentGhostBlock.Rotate(Vector3.right);
         }
-        else if (Input.GetKeyDown(KeyCode.D))
+        else if (TetrisInputManager.Instance.RotateXNegative)
         {
             currentGhostBlock.Rotate(-Vector3.right);
         }
 
-        // Y축 회전 (W, S)
-        if (Input.GetKeyDown(KeyCode.W))
+        // Y축 회전
+        if (TetrisInputManager.Instance.RotateYPositive)
         {
             currentGhostBlock.Rotate(Vector3.up);
         }
-        else if (Input.GetKeyDown(KeyCode.S))
+        else if (TetrisInputManager.Instance.RotateYNegative)
         {
             currentGhostBlock.Rotate(-Vector3.up);
         }
 
-        // Z축 회전 (Q, E)
-        if (Input.GetKeyDown(KeyCode.Q))
+        // Z축 회전
+        if (TetrisInputManager.Instance.RotateZPositive)
         {
             currentGhostBlock.Rotate(Vector3.forward);
         }
-        else if (Input.GetKeyDown(KeyCode.E))
+        else if (TetrisInputManager.Instance.RotateZNegative)
         {
             currentGhostBlock.Rotate(-Vector3.forward);
         }
