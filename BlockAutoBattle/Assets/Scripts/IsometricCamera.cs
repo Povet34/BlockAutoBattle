@@ -3,8 +3,10 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class IsometricCamera : MonoBehaviour
 {
+    [SerializeField] TileGridGenerator tileGridGenerator;
+
     [Header("Isometric View Settings")]
-    public Transform target; // 카메라가 따라갈 타겟
+    private Transform target; // 카메라가 따라갈 타겟
     public float cameraHeight = 10f; // 카메라 높이
     public float cameraDistance = 10f; // 카메라 거리
     public float cameraAngle = 30f; // 카메라 각도
@@ -19,6 +21,7 @@ public class IsometricCamera : MonoBehaviour
 
     private void Start()
     {
+        target = tileGridGenerator.viewTarget.transform;
         currentZoom = cameraDistance;
     }
 

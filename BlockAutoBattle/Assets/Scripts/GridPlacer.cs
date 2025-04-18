@@ -7,7 +7,7 @@ public class GridPlacer : MonoBehaviour
     public GameObject ghostPrefab; // 반투명 큐브 프리팹
     public float gridSize = 1f;
     public Button placeButton; // UI 버튼
-    public GridLinesDrawer gridDrawer; // GridLinesDrawer 참조
+    public TileGridGenerator gridDrawer; // GridLinesDrawer 참조
 
     private GameObject ghostInstance;
     private bool isPlacing = false;
