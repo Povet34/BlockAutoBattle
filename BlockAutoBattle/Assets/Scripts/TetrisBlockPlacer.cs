@@ -15,7 +15,6 @@ public class TetrisBlockPlacer : MonoBehaviour
     private TetrisBlock currentGhostBlock; // 현재 고스트 블럭
     private TetrisBlockData currentBlockData; // 현재 선택된 테트리스 블럭 데이터
 
-
     void Start()
     {
         if (tetrisBlocks == null || tetrisBlocks.Count == 0)
@@ -34,12 +33,50 @@ public class TetrisBlockPlacer : MonoBehaviour
             // 고스트 블록 위치 업데이트
             UpdateGhostBlock();
 
+            // 회전 입력 처리
+            HandleRotationInput();
+
             // 마우스 클릭 시 블록 배치
             if (Input.GetMouseButtonDown(0))
             {
-                PlaceBlock();
-                SelectRandomBlock(); // 블록 배치 후 새로운 블록 선택
+                if(PlaceBlock())
+                {
+                    SelectRandomBlock(); // 블록 배치 후 새로운 블록 선택
+                }
             }
+        }
+    }
+
+    private void HandleRotationInput()
+    {
+        // X축 회전 (A, D)
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            currentGhostBlock.Rotate(Vector3.right);
+        }
+        else if (Input.GetKeyDown(KeyCode.D))
+        {
+            currentGhostBlock.Rotate(-Vector3.right);
+        }
+
+        // Y축 회전 (W, S)
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            currentGhostBlock.Rotate(Vector3.up);
+        }
+        else if (Input.GetKeyDown(KeyCode.S))
+        {
+            currentGhostBlock.Rotate(-Vector3.up);
+        }
+
+        // Z축 회전 (Q, E)
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            currentGhostBlock.Rotate(Vector3.forward);
+        }
+        else if (Input.GetKeyDown(KeyCode.E))
+        {
+            currentGhostBlock.Rotate(-Vector3.forward);
         }
     }
 
@@ -155,23 +192,28 @@ public class TetrisBlockPlacer : MonoBehaviour
         return false; // 완전히 겹치는 블록이 없는 경우
     }
 
-    private void PlaceBlock()
+    private bool PlaceBlock()
     {
         Vector3 position = currentGhostBlock.transform.position;
 
         if (IsBlockOverlapping(position))
         {
             Debug.Log("Cannot place block: position is already occupied.");
-            return;
+            return false;
         }
 
         // 블록 배치
         GameObject placedObject = Instantiate(tetrisBlockPrefab);
         TetrisBlock placedBlock = placedObject.GetComponent<TetrisBlock>();
         placedBlock.Initialize(currentBlockData, placeCubeMaterial);
+
+        // 고스트 블럭의 위치와 회전 상태를 배치된 블럭에 복사
         placedBlock.SetPosition(position);
+        placedBlock.transform.rotation = currentGhostBlock.transform.rotation;
 
         // 배치된 블럭의 콜라이더 활성화
         placedBlock.EnableColliders(true);
+
+        return true;
     }
 }

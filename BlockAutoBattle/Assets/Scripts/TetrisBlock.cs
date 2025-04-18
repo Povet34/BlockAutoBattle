@@ -63,4 +63,10 @@ public class TetrisBlock : MonoBehaviour
             }
         }
     }
+
+    public void Rotate(Vector3 axis)
+    {
+        // 90도씩 회전
+        transform.Rotate(axis * 90f, Space.World);
+    }
 }
