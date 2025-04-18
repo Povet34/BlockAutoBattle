@@ -193,6 +193,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8b7572e5a7b04954bb807167e9a44d45, type: 2}
   - {fileID: 11400000, guid: 6d686bc31cb147f40ad3d0d901fcaba3, type: 2}
   cubePrefab: {fileID: 7315917741905595140, guid: 0c8fd619e92fe6443a86c2355a04f813, type: 3}
+  tetrisBlockPrefab: {fileID: 2655095160546373114, guid: 9a4121d2e25ca4344ae37e42bec767ee, type: 3}
   gridSize: 1
   gridDrawer: {fileID: 75223440}
   ghostCubeMaterial: {fileID: 2100000, guid: b64c50dbfd3a4874b9a4b11ddcf4fc72, type: 2}
@@ -285,7 +286,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.039521348, y: 0.9545982, z: -0.25578386, w: 0.14749566}
-  m_LocalPosition: {x: 2.3861969, y: 5, z: 14.081392}
+  m_LocalPosition: {x: 2.8861969, y: 4.5, z: 13.7563925}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

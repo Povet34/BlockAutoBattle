@@ -1,23 +1,20 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Collections;
 
 public class TetrisBlockPlacer : MonoBehaviour
 {
-    public List<TetrisBlock> tetrisBlocks; // 사용할 테트리스 블록 리스트
+    public List<TetrisBlockData> tetrisBlocks; // 사용할 테트리스 블록 리스트
     public GameObject cubePrefab; // 큐브 프리팹
+    public GameObject tetrisBlockPrefab; // TetrisBlock 프리팹
     public float gridSize = 1f; // 그리드 크기
     public TileGridGenerator gridDrawer; // GridLinesDrawer 참조
-
-    private TetrisBlock currentBlock; // 현재 선택된 테트리스 블록
-    private GameObject ghostBlock; // 고스트 블록
-    private Renderer[] ghostRenderers;
 
     [SerializeField] private Material ghostCubeMaterial; // 고스트 큐브 머티리얼
     [SerializeField] private Material placeCubeMaterial; // 배치된 큐브 머티리얼
 
-    private Ray debugRay; // 디버깅용 레이
-    private Vector3? hitPoint; // 레이가 부딪힌 지점
+    private TetrisBlock currentGhostBlock; // 현재 고스트 블럭
+    private TetrisBlockData currentBlockData; // 현재 선택된 테트리스 블럭 데이터
+
 
     void Start()
     {
@@ -32,7 +29,7 @@ public class TetrisBlockPlacer : MonoBehaviour
 
     void Update()
     {
-        if (ghostBlock != null)
+        if (currentGhostBlock != null)
         {
             // 고스트 블록 위치 업데이트
             UpdateGhostBlock();
@@ -46,7 +43,7 @@ public class TetrisBlockPlacer : MonoBehaviour
         }
     }
 
-    void SelectRandomBlock()
+    private void SelectRandomBlock()
     {
         if (tetrisBlocks.Count == 0)
         {
@@ -56,54 +53,21 @@ public class TetrisBlockPlacer : MonoBehaviour
 
         // 랜덤으로 블록 선택
         int randomIndex = Random.Range(0, tetrisBlocks.Count);
-        currentBlock = tetrisBlocks[randomIndex];
+        currentBlockData = tetrisBlocks[randomIndex];
 
         // 기존 고스트 블록 제거
-        if (ghostBlock != null)
+        if (currentGhostBlock != null)
         {
-            Destroy(ghostBlock);
+            Destroy(currentGhostBlock.gameObject);
         }
 
         // 새로운 고스트 블록 생성
-        CreateGhostBlock();
-    }
+        GameObject ghostObject = Instantiate(tetrisBlockPrefab);
+        currentGhostBlock = ghostObject.GetComponent<TetrisBlock>();
+        currentGhostBlock.Initialize(currentBlockData, ghostCubeMaterial);
 
-    void CreateGhostBlock()
-    {
-        // 기존 고스트 블록 제거
-        if (ghostBlock != null)
-        {
-            Destroy(ghostBlock);
-            ghostBlock = null; // 참조 제거
-        }
-
-        // 고스트 블록 생성
-        ghostBlock = new GameObject("GhostBlock");
-        ghostRenderers = new Renderer[currentBlock.cubePositions.Length];
-
-        for (int i = 0; i < currentBlock.cubePositions.Length; i++)
-        {
-            GameObject ghostCube = Instantiate(cubePrefab, ghostBlock.transform);
-            ghostCube.transform.localPosition = currentBlock.cubePositions[i];
-
-            // 고스트 블록의 머티리얼 설정
-            Renderer renderer = ghostCube.GetComponent<Renderer>();
-            if (ghostCubeMaterial != null)
-            {
-                renderer.material = ghostCubeMaterial; // ghostCubeMaterial 적용
-            }
-            ghostRenderers[i] = renderer;
-
-            // 고스트 블록의 모든 콜라이더 비활성화
-            Collider[] colliders = ghostCube.GetComponents<Collider>();
-            foreach (Collider collider in colliders)
-            {
-                collider.enabled = false;
-            }
-        }
-
-        // 고스트 블록의 위치 초기화
-        ghostBlock.transform.position = Vector3.zero;
+        // 고스트 블럭의 콜라이더 비활성화
+        currentGhostBlock.EnableColliders(false);
     }
 
     private Vector3 CalculateGridPosition(Vector3 position)
@@ -123,9 +87,6 @@ public class TetrisBlockPlacer : MonoBehaviour
     private void UpdateGhostBlock()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        debugRay = ray; // 디버깅용 레이 저장
-        hitPoint = null; // 초기화
-
         Vector3 snappedPosition = Vector3.zero;
         bool isValidPosition = false;
 
@@ -141,9 +102,6 @@ public class TetrisBlockPlacer : MonoBehaviour
             // 그리드 스냅 적용
             snappedPosition = CalculateGridPosition(offsetPosition);
             isValidPosition = true;
-
-            // 충돌 지점 저장
-            hitPoint = hit.point;
         }
         else
         {
@@ -154,33 +112,25 @@ public class TetrisBlockPlacer : MonoBehaviour
                 Vector3 pointOnPlane = ray.GetPoint(distance);
                 snappedPosition = CalculateGridPosition(pointOnPlane);
                 isValidPosition = true;
-
-                // 충돌 지점 저장
-                hitPoint = pointOnPlane;
             }
         }
 
         if (isValidPosition)
         {
             // 고스트 블록 위치 업데이트
-            ghostBlock.transform.position = snappedPosition;
+            currentGhostBlock.SetPosition(snappedPosition);
 
             // 겹침 여부 확인
             bool isOverlapping = IsBlockOverlapping(snappedPosition);
 
             // 고스트 블록 색상 변경
-            foreach (Renderer renderer in ghostRenderers)
-            {
-                renderer.material.color = isOverlapping
-                    ? new Color(1, 0, 0, 0.5f) // 빨간색 (반투명)
-                    : new Color(0, 1, 0, 0.5f); // 초록색 (반투명)
-            }
+            currentGhostBlock.SetColor(isOverlapping ? new Color(1, 0, 0, 0.5f) : new Color(0, 1, 0, 0.5f));
         }
     }
 
     private bool IsBlockOverlapping(Vector3 position)
     {
-        foreach (Vector3 offset in currentBlock.cubePositions)
+        foreach (Vector3 offset in currentBlockData.cubePositions)
         {
             // 현재 블록의 각 큐브의 실제 위치 계산
             Vector3 cubePosition = position + offset;
@@ -195,7 +145,7 @@ public class TetrisBlockPlacer : MonoBehaviour
             foreach (Collider collider in colliders)
             {
                 // 고스트 블록은 제외하고, 정확히 동일한 위치에 있는지 확인
-                if (collider.gameObject != ghostBlock && collider.transform.position == cubePosition)
+                if (collider.gameObject != currentGhostBlock.gameObject && collider.transform.position == cubePosition)
                 {
                     return true; // 완전히 겹친 경우
                 }
@@ -205,60 +155,23 @@ public class TetrisBlockPlacer : MonoBehaviour
         return false; // 완전히 겹치는 블록이 없는 경우
     }
 
-    private bool PlaceBlock()
+    private void PlaceBlock()
     {
-        Vector3 position = ghostBlock.transform.position;
+        Vector3 position = currentGhostBlock.transform.position;
 
         if (IsBlockOverlapping(position))
         {
             Debug.Log("Cannot place block: position is already occupied.");
-            return false;
+            return;
         }
 
         // 블록 배치
-        PlaceBlockAtPosition(position);
-        return true;
-    }
+        GameObject placedObject = Instantiate(tetrisBlockPrefab);
+        TetrisBlock placedBlock = placedObject.GetComponent<TetrisBlock>();
+        placedBlock.Initialize(currentBlockData, placeCubeMaterial);
+        placedBlock.SetPosition(position);
 
-    private void PlaceBlockAtPosition(Vector3 position)
-    {
-        // 실제 블록 배치
-        foreach (Vector3 offset in currentBlock.cubePositions)
-        {
-            // 중심점을 기준으로 큐브의 실제 위치 계산
-            Vector3 cubePosition = position + offset;
-            GameObject placedCube = Instantiate(cubePrefab, cubePosition, Quaternion.identity);
-
-            // 배치된 큐브의 머티리얼 설정
-            Renderer renderer = placedCube.GetComponent<Renderer>();
-            if (placeCubeMaterial != null)
-            {
-                renderer.material = placeCubeMaterial; // placeCubeMaterial 적용
-            }
-
-            // 배치된 큐브의 모든 콜라이더 활성화
-            Collider[] colliders = placedCube.GetComponents<Collider>();
-            foreach (Collider collider in colliders)
-            {
-                collider.enabled = true;
-            }
-        }
-    }
-
-    private void OnDrawGizmos()
-    {
-        // 레이 디버깅
-        if (debugRay.origin != Vector3.zero)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawRay(debugRay.origin, debugRay.direction * 100f); // 레이 그리기
-        }
-
-        // 충돌 지점 디버깅
-        if (hitPoint.HasValue)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawSphere(hitPoint.Value, 0.2f); // 충돌 지점에 구체 그리기
-        }
+        // 배치된 블럭의 콜라이더 활성화
+        placedBlock.EnableColliders(true);
     }
 }

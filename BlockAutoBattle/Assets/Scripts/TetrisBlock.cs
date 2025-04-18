@@ -1,23 +1,66 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewTetrisBlock", menuName = "Tetris Block", order = 1)]
-public class TetrisBlock : ScriptableObject
+public class TetrisBlock : MonoBehaviour
 {
-    public string blockName; // 블록 이름
-    public Color blockColor = Color.white; // 블록 색상
-    public Vector3[] cubePositions; // 큐브의 상대적 위치 배열
-    public int centerIndex; // 중심점으로 사용할 큐브의 인덱스
-    public Vector3 center; // 중심점 (캐싱된 값)
+    [SerializeField] private GameObject cubePrefab;
 
-    // 중심점 반환
-    public Vector3 GetCenter()
+    private Renderer[] renderers; // 블럭의 렌더러 배열
+    private Collider[] colliders; // 블럭의 콜라이더 배열
+    private Vector3[] cubePositions; // 블럭의 큐브 위치 배열
+
+    public void Initialize(TetrisBlockData blockData, Material material)
     {
-        if (cubePositions != null && centerIndex >= 0 && centerIndex < cubePositions.Length)
+        cubePositions = blockData.cubePositions;
+        renderers = new Renderer[cubePositions.Length];
+        colliders = new Collider[cubePositions.Length];
+
+        // 큐브 생성
+        for (int i = 0; i < cubePositions.Length; i++)
         {
-            center = cubePositions[centerIndex];
-            return center;
+            GameObject cube = Instantiate(cubePrefab, transform);
+            cube.transform.localPosition = cubePositions[i];
+
+            // 렌더러 설정
+            Renderer renderer = cube.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                renderer.material = material;
+            }
+            renderers[i] = renderer;
+
+            // 콜라이더 설정
+            Collider collider = cube.GetComponent<Collider>();
+            if (collider != null)
+            {
+                colliders[i] = collider;
+            }
         }
-        Debug.LogWarning($"Invalid centerIndex for {blockName}. Defaulting to Vector3.zero.");
-        return Vector3.zero; // 기본값
+
+        // 블럭 색상 설정 (blockData의 색상 사용)
+        SetColor(blockData.blockColor);
+    }
+
+    public void SetPosition(Vector3 position)
+    {
+        transform.position = position;
+    }
+
+    public void SetColor(Color color)
+    {
+        foreach (Renderer renderer in renderers)
+        {
+            renderer.material.color = color;
+        }
+    }
+
+    public void EnableColliders(bool enable)
+    {
+        foreach (Collider collider in colliders)
+        {
+            if (collider != null)
+            {
+                collider.enabled = enable;
+            }
+        }
     }
 }
