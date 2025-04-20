@@ -4,6 +4,7 @@ using System.Collections;
 
 public class TetrisBlockPlacer : MonoBehaviour
 {
+    [SerializeField] Camera cam;
     public List<TetrisBlock> tetrisBlocks; // 사용할 테트리스 블록 리스트
     public GameObject cubePrefab; // 큐브 프리팹
     public float gridSize = 1f; // 그리드 크기
@@ -136,7 +137,7 @@ public class TetrisBlockPlacer : MonoBehaviour
 
     void UpdateBlockPosition(bool isPlacing = false)
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
         Vector3 snappedPosition = Vector3.zero;
         bool isValidPosition = false;
 
@@ -254,7 +255,7 @@ public class TetrisBlockPlacer : MonoBehaviour
 
     private void UpdateGhostBlock()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
         Vector3 snappedPosition = Vector3.zero;
         bool isValidPosition = false;
 
