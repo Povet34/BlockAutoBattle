@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 public class TetrisBlockPlacer : MonoBehaviour
 {
+    [SerializeField] Camera placeCam;
+
     public List<TetrisBlockData> tetrisBlocks; // 사용할 테트리스 블록 리스트
     public GameObject cubePrefab; // 큐브 프리팹
     public GameObject tetrisBlockPrefab; // TetrisBlock 프리팹
@@ -123,7 +125,7 @@ public class TetrisBlockPlacer : MonoBehaviour
 
     private void UpdateGhostBlock()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = placeCam.ScreenPointToRay(Input.mousePosition);
         Vector3 snappedPosition = Vector3.zero;
         bool isValidPosition = false;
 
