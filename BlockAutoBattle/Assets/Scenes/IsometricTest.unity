@@ -152,7 +152,11 @@ MonoBehaviour:
   width: 10
   height: 10
   cellSize: 1
-  lineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  lineColor: {r: 1, g: 1, b: 1, a: 1}
+  viewTarget: {fileID: 1687250786}
+  yOffset: -0.5
+  xOffset: 0.5
+  zOffset: 0.5
 --- !u!4 &75223441
 Transform:
   m_ObjectHideFlags: 0
@@ -165,7 +169,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1687250787}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &75223443
@@ -188,8 +193,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8b7572e5a7b04954bb807167e9a44d45, type: 2}
   - {fileID: 11400000, guid: 6d686bc31cb147f40ad3d0d901fcaba3, type: 2}
   cubePrefab: {fileID: 7315917741905595140, guid: 0c8fd619e92fe6443a86c2355a04f813, type: 3}
+  tetrisBlockPrefab: {fileID: 2655095160546373114, guid: 9a4121d2e25ca4344ae37e42bec767ee, type: 3}
   gridSize: 1
   gridDrawer: {fileID: 75223440}
+  ghostCubeMaterial: {fileID: 2100000, guid: b64c50dbfd3a4874b9a4b11ddcf4fc72, type: 2}
+  placeCubeMaterial: {fileID: 2100000, guid: eaf7660937e1a4947b89809807c38e72, type: 2}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -278,7 +286,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.039521348, y: 0.9545982, z: -0.25578386, w: 0.14749566}
-  m_LocalPosition: {x: 2.3861969, y: 5, z: 13.2563925}
+  m_LocalPosition: {x: 2.8861969, y: 4.5, z: 13.7563925}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -340,7 +348,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da8801111d2f5bb488187faf8f0f9783, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 1687250787}
+  tileGridGenerator: {fileID: 75223440}
   cameraHeight: 5
   cameraDistance: 10
   cameraAngle: 30
@@ -621,13 +629,57 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1687250786}
   serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 5.5, y: -0.5, z: 5.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 75223441}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2018324858
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2018324859}
+  - component: {fileID: 2018324860}
+  m_Layer: 0
+  m_Name: TetrisInputManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2018324859
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2018324858}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5, y: 0, z: 5}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2018324860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2018324858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a586738600e4f94a8f083bb1589f02d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -637,4 +689,4 @@ SceneRoots:
   - {fileID: 832575519}
   - {fileID: 75223441}
   - {fileID: 737730892}
-  - {fileID: 1687250787}
+  - {fileID: 2018324859}
