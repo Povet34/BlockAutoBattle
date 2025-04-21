@@ -14,15 +14,11 @@ public class TetrisBlock : MonoBehaviour
         Vector3 center = blockData.center;
         cubePositions = new Vector3[blockData.cubePositions.Length];
 
-        string log = "cube :";
-
         // 큐브 위치를 center를 기준으로 재정렬
         for (int i = 0; i < blockData.cubePositions.Length; i++)
         {
             cubePositions[i] = blockData.cubePositions[i];
         }
-
-        Debug.Log(log);
 
         renderers = new Renderer[cubePositions.Length];
         colliders = new Collider[cubePositions.Length];
