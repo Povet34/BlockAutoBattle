@@ -18,7 +18,7 @@ public class TetrisBlock : MonoBehaviour
         for (int i = 0; i < cubePositions.Length; i++)
         {
             GameObject cube = Instantiate(cubePrefab, transform);
-            cube.transform.localPosition = blockData.GetCenter() - cubePositions[i];
+            cube.transform.localPosition = cubePositions[i];
 
             // ·»´õ·¯ ¼³Á¤
             Renderer renderer = cube.GetComponent<Renderer>();
