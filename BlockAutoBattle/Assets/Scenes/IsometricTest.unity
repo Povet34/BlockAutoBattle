@@ -286,8 +286,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.039521348, y: 0.9545982, z: -0.25578386, w: 0.14749566}
-  m_LocalPosition: {x: 2.8861969, y: 4.5, z: 13.7563925}
+  m_LocalRotation: {x: 0.35375687, y: -0.14258075, z: 0.05465923, w: 0.9227888}
+  m_LocalPosition: {x: 7.1789894, y: 4.5, z: 0.19646454}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -351,8 +351,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileGridGenerator: {fileID: 75223440}
   cameraHeight: 5
-  cameraDistance: 10
-  cameraAngle: 30
+  cameraDistance: -10.59
+  cameraAngle: -123.8
   orbitSpeed: 50
   minZoom: 5
   maxZoom: 20

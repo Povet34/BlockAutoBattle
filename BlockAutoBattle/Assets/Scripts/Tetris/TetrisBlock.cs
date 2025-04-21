@@ -10,7 +10,20 @@ public class TetrisBlock : MonoBehaviour
 
     public void Initialize(TetrisBlockData blockData, Material material)
     {
-        cubePositions = blockData.cubePositions;
+        // 블록 데이터의 큐브 위치와 중심점 가져오기
+        Vector3 center = blockData.center;
+        cubePositions = new Vector3[blockData.cubePositions.Length];
+
+        string log = "cube :";
+
+        // 큐브 위치를 center를 기준으로 재정렬
+        for (int i = 0; i < blockData.cubePositions.Length; i++)
+        {
+            cubePositions[i] = blockData.cubePositions[i];
+        }
+
+        Debug.Log(log);
+
         renderers = new Renderer[cubePositions.Length];
         colliders = new Collider[cubePositions.Length];
 
@@ -64,9 +77,37 @@ public class TetrisBlock : MonoBehaviour
         }
     }
 
+    public void SetCubePositions(Vector3[] positions)
+    {
+        if (positions.Length == cubePositions.Length)
+        {
+            for (int i = 0; i < cubePositions.Length; i++)
+            {
+                cubePositions[i] = positions[i];
+                transform.GetChild(i).localPosition = positions[i];
+            }
+        }
+        else
+        {
+            Debug.LogError("Positions array length does not match cubePositions length.");
+        }
+    }
+
     public void Rotate(Vector3 axis)
     {
-        // 90도씩 회전
-        transform.Rotate(axis * 90f, Space.World);
+        // 블록 회전
+        transform.Rotate(axis, 90f, Space.World);
+
+        // 큐브의 offset 데이터 업데이트
+        Quaternion rotation = Quaternion.Euler(axis * 90f);
+        for (int i = 0; i < cubePositions.Length; i++)
+        {
+            cubePositions[i] = rotation * cubePositions[i];
+        }
+    }
+
+    public Vector3[] GetCubePositions()
+    {
+        return cubePositions;
     }
 }

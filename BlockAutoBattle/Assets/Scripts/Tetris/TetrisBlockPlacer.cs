@@ -116,6 +116,11 @@ public class TetrisBlockPlacer : MonoBehaviour
         int gridY = Mathf.RoundToInt(position.y / gridSize);
         int gridZ = Mathf.RoundToInt(position.z / gridSize);
 
+        // 그리드 경계 제한
+        gridX = Mathf.Clamp(gridX, 0, gridDrawer.width - 1);
+        gridY = Mathf.Clamp(gridY, 0, gridDrawer.height - 1);
+        gridZ = Mathf.Clamp(gridZ, 0, gridDrawer.width - 1); // Assuming width and depth are the same
+
         return new Vector3(
             gridX * gridSize,
             gridY * gridSize,
@@ -169,7 +174,7 @@ public class TetrisBlockPlacer : MonoBehaviour
 
     private bool IsBlockOverlapping(Vector3 position)
     {
-        foreach (Vector3 offset in currentBlockData.cubePositions)
+        foreach (Vector3 offset in currentGhostBlock.GetCubePositions())
         {
             // 현재 블록의 각 큐브의 실제 위치 계산
             Vector3 cubePosition = position + offset;
@@ -205,13 +210,13 @@ public class TetrisBlockPlacer : MonoBehaviour
         }
 
         // 블록 배치
-        GameObject placedObject = Instantiate(tetrisBlockPrefab);
+        GameObject placedObject = Instantiate(tetrisBlockPrefab, transform);
         TetrisBlock placedBlock = placedObject.GetComponent<TetrisBlock>();
-        placedBlock.Initialize(currentBlockData, placeCubeMaterial);
 
-        // 고스트 블럭의 위치와 회전 상태를 배치된 블럭에 복사
+        // 배치된 블록 초기화 (머티리얼 설정)
+        placedBlock.Initialize(currentBlockData, placeCubeMaterial);
         placedBlock.SetPosition(position);
-        placedBlock.transform.rotation = currentGhostBlock.transform.rotation;
+        placedBlock.SetCubePositions(currentGhostBlock.GetCubePositions());
 
         // 배치된 블럭의 콜라이더 활성화
         placedBlock.EnableColliders(true);

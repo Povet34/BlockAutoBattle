@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: T
   m_EditorClassIdentifier: 
   blockName: T
-  blockColor: {r: 1, g: 1, b: 1, a: 1}
+  blockColor: {r: 1, g: 0, b: 0.88953495, a: 1}
   cubePositions:
+  - {x: -1, y: 0, z: 0}
   - {x: 0, y: 0, z: 0}
-  - {x: 1, y: 1, z: 0}
   - {x: 1, y: 0, z: 0}
-  - {x: 2, y: 0, z: 0}
-  centerIndex: 2
+  - {x: 0, y: 1, z: 0}
+  centerIndex: 1
   center: {x: 1, y: 0, z: 0}
