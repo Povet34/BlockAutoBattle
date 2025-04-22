@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewTetrisBlock", menuName = "Tetris Block", order = 1)]
+[CreateAssetMenu(fileName = "NewTetrisBlock", menuName = "Scriptable Objects/TetrisBlockData", order = 1)]
 public class TetrisBlockData : ScriptableObject
 {
     public string blockName; // 블록 이름
