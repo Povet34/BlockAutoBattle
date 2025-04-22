@@ -39,7 +39,7 @@ public class TetrisBlockPlacer : MonoBehaviour
             HandleRotationInput();
 
             // 블록 배치 입력 처리
-            if (TetrisInputManager.Instance.PlaceBlock)
+            if (InputManager.Instance.PlaceBlock)
             {
                 if (PlaceBlock())
                 {
@@ -52,31 +52,31 @@ public class TetrisBlockPlacer : MonoBehaviour
     private void HandleRotationInput()
     {
         // X축 회전
-        if (TetrisInputManager.Instance.RotateXPositive)
+        if (InputManager.Instance.RotateXPositive)
         {
             currentGhostBlock.Rotate(Vector3.right);
         }
-        else if (TetrisInputManager.Instance.RotateXNegative)
+        else if (InputManager.Instance.RotateXNegative)
         {
             currentGhostBlock.Rotate(-Vector3.right);
         }
 
         // Y축 회전
-        if (TetrisInputManager.Instance.RotateYPositive)
+        if (InputManager.Instance.RotateYPositive)
         {
             currentGhostBlock.Rotate(Vector3.up);
         }
-        else if (TetrisInputManager.Instance.RotateYNegative)
+        else if (InputManager.Instance.RotateYNegative)
         {
             currentGhostBlock.Rotate(-Vector3.up);
         }
 
         // Z축 회전
-        if (TetrisInputManager.Instance.RotateZPositive)
+        if (InputManager.Instance.RotateZPositive)
         {
             currentGhostBlock.Rotate(Vector3.forward);
         }
-        else if (TetrisInputManager.Instance.RotateZNegative)
+        else if (InputManager.Instance.RotateZNegative)
         {
             currentGhostBlock.Rotate(-Vector3.forward);
         }

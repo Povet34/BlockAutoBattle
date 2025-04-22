@@ -1,11 +1,11 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class TetrisInputManager : MonoBehaviour
+public class InputManager : MonoBehaviour
 {
-    public static TetrisInputManager Instance { get; private set; }
+    public static InputManager Instance { get; private set; }
 
-    private TetrisInputActions inputActions;
+    private InputActions inputActions;
 
     public Vector2 MouseMove { get; private set; }
     public bool RotateXPositive { get; private set; }
@@ -27,7 +27,7 @@ public class TetrisInputManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        inputActions = new TetrisInputActions();
+        inputActions = new InputActions();
 
         // Bind input actions
         inputActions.Gameplay.MouseMove.performed += ctx => MouseMove = ctx.ReadValue<Vector2>();
