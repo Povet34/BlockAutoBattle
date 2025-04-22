@@ -170,8 +170,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 291cc460e3177d84db79df416a9729fd, type: 2}
   - {fileID: 11400000, guid: 8b7572e5a7b04954bb807167e9a44d45, type: 2}
   - {fileID: 11400000, guid: 6d686bc31cb147f40ad3d0d901fcaba3, type: 2}
-  maxCost: 10
-  rechargeTime: 10
 --- !u!1 &75223439
 GameObject:
   m_ObjectHideFlags: 0
@@ -599,7 +597,7 @@ GameObject:
   - component: {fileID: 493883251}
   - component: {fileID: 493883250}
   m_Layer: 5
-  m_Name: Image
+  m_Name: GraveyardArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1237,17 +1235,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2018324858}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a586738600e4f94a8f083bb1589f02d, type: 3}
+  m_Script: {fileID: 11500000, guid: 693cec81cb0db2c4983ac51e0108f5ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <MouseMove>k__BackingField: {x: 0, y: 0}
-  <RotateXPositive>k__BackingField: 0
-  <RotateXNegative>k__BackingField: 0
-  <RotateYPositive>k__BackingField: 0
-  <RotateYNegative>k__BackingField: 0
-  <RotateZPositive>k__BackingField: 0
-  <RotateZNegative>k__BackingField: 0
-  <PlaceBlock>k__BackingField: 0
 --- !u!114 &799929164727045777
 MonoBehaviour:
   m_ObjectHideFlags: 0

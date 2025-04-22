@@ -25,8 +25,6 @@ public class InputManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
-
         inputActions = new InputActions();
 
         // Bind input actions
@@ -38,6 +36,14 @@ public class InputManager : MonoBehaviour
         inputActions.Gameplay.RotateZPositive.performed += ctx => RotateZPositive = true;
         inputActions.Gameplay.RotateZNegative.performed += ctx => RotateZNegative = true;
         inputActions.Gameplay.PlaceBlock.performed += ctx => PlaceBlock = true;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     private void OnEnable()
