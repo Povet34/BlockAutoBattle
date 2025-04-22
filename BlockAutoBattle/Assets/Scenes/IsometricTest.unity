@@ -262,7 +262,7 @@ GameObject:
   - component: {fileID: 234310880}
   - component: {fileID: 234310879}
   m_Layer: 5
-  m_Name: CardPanel
+  m_Name: PlayerCardPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
