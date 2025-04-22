@@ -129,6 +129,8 @@ GameObject:
   m_Component:
   - component: {fileID: 38269546}
   - component: {fileID: 38269547}
+  - component: {fileID: 38269549}
+  - component: {fileID: 38269548}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -163,13 +165,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e0d3be1c6a77724e8da2b916f3b010f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allAvailableCards:
-  - {fileID: 11400000, guid: af77b2cfa81ca8a4bb82b03e25497b72, type: 2}
-  - {fileID: 11400000, guid: c65b8e8e1f1c1774b92659ee34b3eada, type: 2}
-  - {fileID: 11400000, guid: ef8d0db9abe2acc4dbff7c3e1eae8d4b, type: 2}
-  - {fileID: 11400000, guid: 291cc460e3177d84db79df416a9729fd, type: 2}
-  - {fileID: 11400000, guid: 8b7572e5a7b04954bb807167e9a44d45, type: 2}
-  - {fileID: 0}
+--- !u!114 &38269548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 38269545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2306a6a229192a4280329bac11fb4d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxCost: 10
+  rechargeTime: 10
+--- !u!114 &38269549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 38269545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7b2fcdaac1cc1a4495078c9f68d81c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  characterType: 0
 --- !u!1 &75223439
 GameObject:
   m_ObjectHideFlags: 0
