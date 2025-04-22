@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5eea9ed6b49070f418f19d972375dc65, type: 3}
+  m_Name: TetrisBlockerStartingDeck
+  m_EditorClassIdentifier: 
+  constructCardDatas:
+  - {fileID: 11400000, guid: 1bd76927cff24d74e9dd9f80fea7b82d, type: 2}
+  - {fileID: 11400000, guid: 1f957f75fc70f3542bf3b592230b9720, type: 2}
+  - {fileID: 11400000, guid: 5e9b71483f2473749b296a65c778af04, type: 2}
+  - {fileID: 11400000, guid: ed57bc5474bff9446b9d4745d2d60ec2, type: 2}
+  - {fileID: 11400000, guid: 967d9d71010a9f44b9ff73d051df327c, type: 2}
+  - {fileID: 11400000, guid: cdf7b173715c6c24d95852c2499fd0eb, type: 2}
+  - {fileID: 11400000, guid: 1bd76927cff24d74e9dd9f80fea7b82d, type: 2}
+  - {fileID: 11400000, guid: 1f957f75fc70f3542bf3b592230b9720, type: 2}
+  - {fileID: 11400000, guid: 5e9b71483f2473749b296a65c778af04, type: 2}
+  - {fileID: 11400000, guid: ed57bc5474bff9446b9d4745d2d60ec2, type: 2}
+  - {fileID: 11400000, guid: 967d9d71010a9f44b9ff73d051df327c, type: 2}
+  - {fileID: 11400000, guid: cdf7b173715c6c24d95852c2499fd0eb, type: 2}

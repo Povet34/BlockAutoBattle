@@ -2,8 +2,15 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public enum CharacterType //이건 캐릭터가 무엇인지를 결정한다.
+    {
+        TetrisBlocker,
+    }
+
     public PlayerCardManager playerCardManager { get; private set; }
     public PlayerStats playerStats { get; private set; }
+
+    public CharacterType characterType;
 
     private void Awake()
     {
@@ -16,9 +23,14 @@ public class Player : MonoBehaviour
             Debug.LogError("Player의 구성 요소가 제대로 설정되지 않았습니다.");
             return;
         }
+    }
+
+    public void Init(PlayerData data)
+    {
+        characterType = data.characterType;
 
         // 의존성 주입
-        playerCardManager.Initialize(this);
+        playerCardManager.Initialize(this, data.startingDeckData);
         playerStats.Initialize(this);
     }
 
@@ -28,12 +40,12 @@ public class Player : MonoBehaviour
         playerCardManager.RechargeCards();
     }
 
-    public bool UseCard(TetrisBlockData card, int cost)
+    public bool UseCard(ConstructCard card, int cost)
     {
         // 카드 사용 로직을 중앙에서 관리
         if (playerCardManager != null && playerStats != null)
         {
-            return playerCardManager.UseCard(card, cost, playerStats);
+            return playerCardManager.UseCard(card, playerStats);
         }
 
         return false;

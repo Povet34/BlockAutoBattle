@@ -6,28 +6,29 @@ public class PlayerCardManager : MonoBehaviour
     private Player player; // Player 참조
 
     [Header("Card Deck")]
-    public List<TetrisBlockData> allAvailableCards; // 모든 가능한 카드 데이터
-    private List<TetrisBlockData> cardDeck; // 플레이어의 카드덱
-    private List<TetrisBlockData> hand; // 현재 핸드에 있는 카드들
-    private List<TetrisBlockData> graveyard; // 묘지로 간 카드들
+    private List<ConstructCard> cardDeck; // 플레이어의 카드덱
+    private List<ConstructCard> hand; // 현재 핸드에 있는 카드들
+    private List<ConstructCard> graveyard; // 묘지로 간 카드들
 
-    public void Initialize(Player player)
+    public void Initialize(Player player, StartingDeckData startingDeck)
     {
         this.player = player;
-        InitializeDeck();
+        InitializeDeck(startingDeck);
     }
 
-    private void InitializeDeck()
+    private void InitializeDeck(StartingDeckData startingDeck)
     {
-        // 카드덱 초기화: 모든 가능한 카드 중 랜덤으로 20개 선택
-        cardDeck = new List<TetrisBlockData>();
-        hand = new List<TetrisBlockData>();
-        graveyard = new List<TetrisBlockData>();
+        // 카드덱 초기화
+        cardDeck = new List<ConstructCard>();
+        hand = new List<ConstructCard>();
+        graveyard = new List<ConstructCard>();
 
-        for (int i = 0; i < 20; i++)
+        // StartingDeckData를 기반으로 ConstructCard 생성
+        foreach (var cardData in startingDeck.constructCardDatas)
         {
-            int randomIndex = Random.Range(0, allAvailableCards.Count);
-            cardDeck.Add(allAvailableCards[randomIndex]);
+            ConstructCard newCard = new GameObject(cardData.name).AddComponent<ConstructCard>();
+            newCard.Initialize(cardData);
+            cardDeck.Add(newCard);
         }
 
         DrawCards(); // 초기 핸드 드로우
@@ -57,10 +58,10 @@ public class PlayerCardManager : MonoBehaviour
         DrawCards();
     }
 
-    public bool UseCard(TetrisBlockData card, int cost, PlayerStats playerStats)
+    public bool UseCard(ConstructCard card, PlayerStats playerStats)
     {
         // 카드 사용 시 코스트 소모
-        if (hand.Contains(card) && playerStats.UseCost(cost))
+        if (hand.Contains(card) && playerStats.UseCost(card.GetCost()))
         {
             hand.Remove(card);
             graveyard.Add(card);
@@ -70,12 +71,12 @@ public class PlayerCardManager : MonoBehaviour
         return false; // 코스트 부족 또는 카드가 핸드에 없음
     }
 
-    public List<TetrisBlockData> GetHand()
+    public List<ConstructCard> GetHand()
     {
         return hand;
     }
 
-    public List<TetrisBlockData> GetGraveyard()
+    public List<ConstructCard> GetGraveyard()
     {
         return graveyard;
     }
