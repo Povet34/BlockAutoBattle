@@ -6,30 +6,41 @@ public class PlayerCardManager : MonoBehaviour
     private Player player; // Player 참조
 
     [Header("Card Deck")]
-    private List<ConstructCard> cardDeck; // 플레이어의 카드덱
+    [SerializeField] private GameObject cardPrefab; // ConstructCard Prefab
+    [SerializeField] private Transform handCardArea; // 핸드 카드가 배치될 부모 Transform
+
+    private List<ConstructCardData> cardDeckData; // 원본 카드 데이터 리스트
     private List<ConstructCard> hand; // 현재 핸드에 있는 카드들
     private List<ConstructCard> graveyard; // 묘지로 간 카드들
 
     public void Initialize(Player player, StartingDeckData startingDeck)
     {
         this.player = player;
+
+        // "HandDeckArea"라는 이름을 가진 오브젝트를 찾아 handCardArea에 할당
+        if (handCardArea == null)
+        {
+            GameObject handDeckAreaObject = GameObject.Find("HandDeckArea");
+            if (handDeckAreaObject != null)
+            {
+                handCardArea = handDeckAreaObject.transform;
+            }
+            else
+            {
+                Debug.LogError("HandDeckArea 오브젝트를 찾을 수 없습니다. 씬에 'HandDeckArea'라는 이름의 오브젝트가 있어야 합니다.");
+                return;
+            }
+        }
+
         InitializeDeck(startingDeck);
     }
 
     private void InitializeDeck(StartingDeckData startingDeck)
     {
         // 카드덱 초기화
-        cardDeck = new List<ConstructCard>();
+        cardDeckData = new List<ConstructCardData>(startingDeck.constructCardDatas);
         hand = new List<ConstructCard>();
         graveyard = new List<ConstructCard>();
-
-        // StartingDeckData를 기반으로 ConstructCard 생성
-        foreach (var cardData in startingDeck.constructCardDatas)
-        {
-            ConstructCard newCard = new GameObject(cardData.name).AddComponent<ConstructCard>();
-            newCard.Initialize(cardData);
-            cardDeck.Add(newCard);
-        }
 
         DrawCards(); // 초기 핸드 드로우
     }
@@ -37,22 +48,67 @@ public class PlayerCardManager : MonoBehaviour
     private void DrawCards()
     {
         // 카드덱에서 5장의 카드를 핸드로 드로우
-        hand.Clear();
-        for (int i = 0; i < 5; i++)
+        ClearHand();
+
+        int cardCount = Mathf.Min(5, cardDeckData.Count); // 최대 5장만 드로우
+        float radius = 500f; // 원호의 반지름
+        float maxAngle = 30f; // 원호의 최대 각도 (양쪽으로 15도씩 펼침)
+        float angleStep = cardCount > 1 ? maxAngle * 2 / (cardCount - 1) : 0; // 카드 간의 각도 간격
+        float startAngle = -maxAngle; // 시작 각도
+
+        for (int i = 0; i < cardCount; i++)
         {
-            if (cardDeck.Count > 0)
+            // 카드 데이터 가져오기
+            ConstructCardData cardData = cardDeckData[0];
+            cardDeckData.RemoveAt(0);
+
+            // ConstructCard 생성 및 초기화
+            ConstructCard newCard = CreateCard(cardData);
+
+            // 각도 계산
+            float angle = startAngle + (i * angleStep);
+            float radian = angle * Mathf.Deg2Rad;
+
+            // 위치 계산 (원호의 중심에서 각도를 기준으로 배치)
+            Vector3 position = new Vector3(Mathf.Sin(radian) * radius, 0, Mathf.Cos(radian) * radius);
+            position.z = 0; // UI는 2D이므로 Z축은 0으로 설정
+
+            // 카드 위치 및 회전 설정
+            RectTransform cardRect = newCard.GetComponent<RectTransform>();
+            if (cardRect != null)
             {
-                hand.Add(cardDeck[0]);
-                cardDeck.RemoveAt(0);
+                cardRect.anchoredPosition = position;
+                cardRect.localRotation = Quaternion.Euler(0, 0, -angle); // 카드가 원호를 따라 기울어지도록 설정
             }
+
+            hand.Add(newCard);
         }
+    }
+
+    private ConstructCard CreateCard(ConstructCardData cardData)
+    {
+        // Prefab을 기반으로 ConstructCard 생성
+        GameObject cardObject = Instantiate(cardPrefab, handCardArea);
+        ConstructCard newCard = cardObject.GetComponent<ConstructCard>();
+        newCard.Initialize(cardData);
+        return newCard;
+    }
+
+    private void ClearHand()
+    {
+        // 핸드에 있는 기존 카드를 모두 제거
+        foreach (var card in hand)
+        {
+            Destroy(card.gameObject);
+        }
+        hand.Clear();
     }
 
     public void RechargeCards()
     {
         // 핸드의 카드들을 묘지로 이동
         graveyard.AddRange(hand);
-        hand.Clear();
+        ClearHand();
 
         // 카드덱에서 새로운 카드 드로우
         DrawCards();
@@ -65,6 +121,7 @@ public class PlayerCardManager : MonoBehaviour
         {
             hand.Remove(card);
             graveyard.Add(card);
+            Destroy(card.gameObject); // UI 카드 제거
             return true;
         }
 
