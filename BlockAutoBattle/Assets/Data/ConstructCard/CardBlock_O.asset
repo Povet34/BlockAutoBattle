@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tetrisBlockData: {fileID: 11400000, guid: ef8d0db9abe2acc4dbff7c3e1eae8d4b, type: 2}
   cost: 1
-  description: Empty
+  cardMainImage: {fileID: 0}
+  description: O
