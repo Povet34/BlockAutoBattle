@@ -3,7 +3,13 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-public class ConstructCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class ConstructCard : MonoBehaviour,
+    IPointerEnterHandler,
+    IPointerExitHandler,
+    IPointerClickHandler,
+    IBeginDragHandler,
+    IDragHandler,
+    IEndDragHandler
 {
     [Header("UI Components")]
     [SerializeField] private Image cardBackground; // 카드 배경 이미지
@@ -17,12 +23,15 @@ public class ConstructCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     private Quaternion originalRotation; // 카드의 원래 회전
     private Transform originalParent; // 카드의 원래 부모 Transform
 
-    private Canvas canvas; // UI 캔버스 참조
+    private CardCanvas cardCanvas; // UI 캔버스 참조
     private RectTransform rectTransform; // 카드의 RectTransform
+    private Player player; // Player 참조
 
-    public void Initialize(ConstructCardData data)
+    public void Initialize(ConstructCardData cardData, CardCanvas cardCanvas, Player player)
     {
-        cardData = data; // ConstructCardData 저장
+        this.cardData = cardData; // ConstructCardData 저장
+        this.cardCanvas = cardCanvas; // CardCanvas 저장
+        this.player = player; // Player 저장
 
         // UI 업데이트
         UpdateUI();
@@ -31,7 +40,6 @@ public class ConstructCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
-        canvas = GetComponentInParent<Canvas>();
     }
 
     private void UpdateUI()
@@ -101,23 +109,45 @@ public class ConstructCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         originalParent = transform.parent;
 
         // 드래그 중에는 카드가 캔버스의 최상위로 이동
-        transform.SetParent(canvas.transform, true);
+        transform.SetParent(cardCanvas.transform, true);
     }
 
     // 드래그 중
     public void OnDrag(PointerEventData eventData)
     {
         // 마우스 위치로 카드 이동
-        rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
+        rectTransform.anchoredPosition += eventData.delta / cardCanvas.GetCanvasScale();
     }
 
     // 드래그 종료
     public void OnEndDrag(PointerEventData eventData)
     {
-        // 카드의 위치를 원래 상태로 복귀
-        rectTransform.anchoredPosition = originalPosition;
+        // 드래그 종료 시 위치 확인
+        if (cardCanvas.IsInConstructPanel(eventData.position))
+        {
+            Debug.Log($"카드 {cardData.tetrisBlockData.blockName}가 ConstructPanel에 놓였습니다.");
 
-        // 카드의 부모를 원래 부모로 복귀
+            // Player의 UseCard 호출
+            if (player.UseCard(this, cardData.cost))
+            {
+                Debug.Log("카드 사용 성공 및 고스트 블럭 생성!");
+            }
+            else
+            {
+                Debug.Log("카드 사용 실패: 코스트 부족 또는 다른 이유.");
+                ResetCardPosition();
+            }
+        }
+        else
+        {
+            // 카드의 위치를 원래 상태로 복귀
+            ResetCardPosition();
+        }
+    }
+
+    private void ResetCardPosition()
+    {
+        rectTransform.anchoredPosition = originalPosition;
         transform.SetParent(originalParent, true);
     }
 

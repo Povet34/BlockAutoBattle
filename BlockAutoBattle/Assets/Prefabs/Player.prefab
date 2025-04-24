@@ -59,8 +59,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e0d3be1c6a77724e8da2b916f3b010f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardPrefab: {fileID: 5654612628205391900, guid: dd0241ebaffd1684cbc9876edc070201, type: 3}
-  handCardArea: {fileID: 0}
+  cardPrefab: {fileID: 8947041749949313751, guid: dd0241ebaffd1684cbc9876edc070201, type: 3}
+  cardCanvasPrefab: {fileID: 7960151774746179541, guid: f0b5c8a43a7b8f54589915c588b208ce, type: 3}
 --- !u!114 &9065915340189049003
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -7,9 +7,13 @@ public class TetrisBlock : MonoBehaviour
     private Renderer[] renderers; // 블럭의 렌더러 배열
     private Collider[] colliders; // 블럭의 콜라이더 배열
     private Vector3[] cubePositions; // 블럭의 큐브 위치 배열
+    private TetrisBlockData blockData; // 인스턴스화된 TetrisBlockData
 
-    public void Initialize(TetrisBlockData blockData, Material material)
+    public void Initialize(TetrisBlockData originalBlockData, Material material)
     {
+        // TetrisBlockData 인스턴스화 (Instantiate를 사용하여 복제)
+        blockData = Instantiate(originalBlockData);
+
         // 블록 데이터의 큐브 위치와 중심점 가져오기
         Vector3 center = blockData.center;
         cubePositions = new Vector3[blockData.cubePositions.Length];
@@ -105,5 +109,10 @@ public class TetrisBlock : MonoBehaviour
     public Vector3[] GetCubePositions()
     {
         return cubePositions;
+    }
+
+    public TetrisBlockData GetBlockData()
+    {
+        return blockData;
     }
 }
