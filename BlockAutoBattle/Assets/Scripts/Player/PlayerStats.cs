@@ -1,7 +1,18 @@
+using System;
 using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
+    public class Data
+    {
+        public Player player;
+
+        public Data(Player player)
+        {
+            this.player = player;
+        }
+    }
+
     [Header("Cost Management")]
     public int maxCost = 10; // 최대 코스트
     private int currentCost; // 현재 코스트
@@ -12,11 +23,13 @@ public class PlayerStats : MonoBehaviour
 
     private Player player; // Player 참조
 
-    public void Initialize(Player player)
+    public void Initialize(Data data)
     {
-        this.player = player;
+        player = data.player;
         currentCost = maxCost;
         rechargeTimer = rechargeTime;
+
+        player.onRecharge += Recharge;
     }
 
     private void Update()
@@ -30,21 +43,15 @@ public class PlayerStats : MonoBehaviour
         rechargeTimer -= Time.deltaTime;
         if (rechargeTimer <= 0f)
         {
-            Recharge();
+            // onRechargable 이벤트 발생
+            player?.onRechargable?.Invoke();
             rechargeTimer = rechargeTime; // 타이머 초기화
         }
     }
 
     private void Recharge()
     {
-        // 코스트 재충전
         currentCost = maxCost;
-
-        // Player를 통해 카드 재충전 호출
-        if (player != null)
-        {
-            player.RechargeCards();
-        }
     }
 
     public bool UseCost(int cost)

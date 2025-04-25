@@ -29,6 +29,15 @@ public class PlayerCardManager : MonoBehaviour
             }
         }
 
+        // rechargeButton 초기화
+        cardCanvas.Init(() =>
+        {
+            player.onRecharge?.Invoke();
+        });
+
+        // Player의 onRecharge 이벤트 구독
+        player.onRecharge += RechargeCards;
+
         InitializeDeck(startingDeck);
     }
 

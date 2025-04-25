@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CardCanvas : MonoBehaviour
 {
@@ -10,11 +12,24 @@ public class CardCanvas : MonoBehaviour
     [SerializeField] RectTransform handArea;
     [SerializeField] RectTransform graveyardArea;
 
+    [SerializeField] Button rechargeButton;
+
     Canvas canvas;
 
     private void Awake()
     {
         canvas = GetComponent<Canvas>();
+    }
+
+    public void Init(Action onRecharge, Action<bool> onRechargable)
+    {
+        rechargeButton.onClick.AddListener(() => onRecharge?.Invoke());
+        onRechargable += SetRechargeButtonInteractable;
+    }
+
+    public void SetRechargeButtonInteractable(bool interactable)
+    {
+        rechargeButton.interactable = interactable;
     }
 
     public RectTransform GetHandArea()

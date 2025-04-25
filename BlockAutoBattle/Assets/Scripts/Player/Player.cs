@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -12,6 +13,23 @@ public class Player : MonoBehaviour
     public BlockPlacer blockPlacer { get; private set; }
 
     public CharacterType characterType;
+
+
+    /// <summary>
+    /// 카드와 코스트를 Recharing 할 수 있음을 알림 
+    /// </summary>
+    public Action onRechargable;
+
+    /// <summary>
+    /// 카드와 코스트를 Recharing 함.
+    /// </summary>
+    public Action onRecharge;
+
+    private void OnEnable()
+    {
+        onRecharge += RechargeCards;
+    }
+
 
     private void Awake()
     {
@@ -33,8 +51,8 @@ public class Player : MonoBehaviour
 
         // 의존성 주입
         playerCardManager.Initialize(this, data.startingDeckData);
-        playerStats.Initialize(this);
-        blockPlacer.Initialize(this); // BlockPlacer 초기화
+        playerStats.Initialize(new PlayerStats.Data(this));
+        blockPlacer.Initialize(this);
     }
 
     public void RechargeCards()
