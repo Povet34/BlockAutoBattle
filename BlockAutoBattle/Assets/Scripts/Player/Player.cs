@@ -18,7 +18,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// 카드와 코스트를 Recharing 할 수 있음을 알림 
     /// </summary>
-    public Action onRechargable;
+    public Action<bool> onRechargable;
 
     /// <summary>
     /// 카드와 코스트를 Recharing 함.

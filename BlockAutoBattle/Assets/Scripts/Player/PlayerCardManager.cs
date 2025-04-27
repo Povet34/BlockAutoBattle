@@ -30,10 +30,8 @@ public class PlayerCardManager : MonoBehaviour
         }
 
         // rechargeButton 초기화
-        cardCanvas.Init(() =>
-        {
-            player.onRecharge?.Invoke();
-        });
+        cardCanvas.Init(() => { player.onRecharge?.Invoke(); }, 
+        (active) => {player.onRechargable?.Invoke(active); });
 
         // Player의 onRecharge 이벤트 구독
         player.onRecharge += RechargeCards;
