@@ -1,15 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class PlayerCardManager : MonoBehaviour
+public class PlayerCardDeck : MonoBehaviour
 {
     private Player player; // Player 참조
 
     [Header("Card Deck")]
     [SerializeField] private ConstructCard cardPrefab; // ConstructCard Prefab
-    [SerializeField] private CardCanvas cardCanvasPrefab; // CardCanvas Prefab
 
-    private CardCanvas cardCanvas; // 동적으로 생성된 CardCanvas
     private List<ConstructCardData> cardDeckData; // 원본 카드 데이터 리스트
     private List<ConstructCard> hand; // 현재 핸드에 있는 카드들
     private List<ConstructCard> graveyard; // 묘지로 간 카드들
@@ -17,21 +15,6 @@ public class PlayerCardManager : MonoBehaviour
     public void Initialize(Player player, StartingDeckData startingDeck)
     {
         this.player = player;
-
-        // CardCanvas 프리팹을 동적으로 생성
-        if (cardCanvas == null)
-        {
-            cardCanvas = Instantiate(cardCanvasPrefab, transform);
-            if (cardCanvas == null)
-            {
-                Debug.LogError("CardCanvas 프리팹에 CardCanvas 컴포넌트가 없습니다.");
-                return;
-            }
-        }
-
-        // rechargeButton 초기화
-        cardCanvas.Init(() => { player.onRecharge?.Invoke(); }, 
-        (active) => {player.onRechargable?.Invoke(active); });
 
         // Player의 onRecharge 이벤트 구독
         player.onRecharge += RechargeCards;
@@ -86,7 +69,7 @@ public class PlayerCardManager : MonoBehaviour
             }
 
             // 카드의 부모를 HandArea로 설정
-            newCard.transform.SetParent(cardCanvas.GetHandArea(), false);
+            newCard.transform.SetParent(player.GetCardCanvas().GetHandArea(), false);
 
             hand.Add(newCard);
         }
@@ -95,8 +78,8 @@ public class PlayerCardManager : MonoBehaviour
     private ConstructCard CreateCard(ConstructCardData cardData)
     {
         // Prefab을 기반으로 ConstructCard 생성
-        ConstructCard newCard = Instantiate(cardPrefab, cardCanvas.GetHandArea());
-        newCard.Initialize(cardData, cardCanvas, player);
+        ConstructCard newCard = Instantiate(cardPrefab, player.GetCardCanvas().GetHandArea());
+        newCard.Initialize(cardData, player.GetCardCanvas(), player);
         return newCard;
     }
 
@@ -115,7 +98,7 @@ public class PlayerCardManager : MonoBehaviour
         // 핸드의 카드들을 묘지로 이동
         foreach (var card in hand)
         {
-            card.transform.SetParent(cardCanvas.GetGraveyardArea(), false);
+            card.transform.SetParent(player.GetCardCanvas().GetGraveyardArea(), false);
             graveyard.Add(card);
         }
         ClearHand();
@@ -131,7 +114,7 @@ public class PlayerCardManager : MonoBehaviour
         {
             hand.Remove(card);
             graveyard.Add(card);
-            card.transform.SetParent(cardCanvas.GetGraveyardArea(), false); // 카드의 부모를 GraveyardArea로 설정
+            card.transform.SetParent(player.GetCardCanvas().GetGraveyardArea(), false); // 카드의 부모를 GraveyardArea로 설정
             Destroy(card.gameObject); // UI 카드 제거
             return true;
         }

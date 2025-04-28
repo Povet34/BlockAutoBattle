@@ -21,6 +21,8 @@ public class PlayerStats : MonoBehaviour
     public float rechargeTime = 10f; // 재충전 시간 (초)
     private float rechargeTimer; // 재충전 타이머
 
+    private bool isRecargable;
+
     private Player player; // Player 참조
 
     public void Initialize(Data data)
@@ -39,19 +41,23 @@ public class PlayerStats : MonoBehaviour
 
     private void HandleRecharge()
     {
-        // 재충전 타이머 업데이트
-        rechargeTimer -= Time.deltaTime;
-        if (rechargeTimer <= 0f)
+        if (!isRecargable)
         {
-            // onRechargable 이벤트 발생
-            rechargeTimer = rechargeTime; // 타이머 초기화
+            rechargeTimer -= Time.deltaTime;
+            if (rechargeTimer <= 0f)
+            {
+                isRecargable = true; // 재충전 가능 상태로 변경
+                rechargeTimer = rechargeTime; // 타이머 초기화
+            }
         }
-        player?.onRechargable?.Invoke(rechargeTimer >= 0f);
+
+        player?.onRechargable?.Invoke(isRecargable);
     }
 
     private void Recharge()
     {
         currentCost = maxCost;
+        isRecargable = false;
     }
 
     public bool UseCost(int cost)
