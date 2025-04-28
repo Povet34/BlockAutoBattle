@@ -44,9 +44,9 @@ public class PlayerStats : MonoBehaviour
         if (rechargeTimer <= 0f)
         {
             // onRechargable 이벤트 발생
-            player?.onRechargable?.Invoke();
             rechargeTimer = rechargeTime; // 타이머 초기화
         }
+        player?.onRechargable?.Invoke(rechargeTimer >= 0f);
     }
 
     private void Recharge()
